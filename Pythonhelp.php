@@ -71,8 +71,8 @@ class PythonHelp
         if (!isset($record['trend_id']) || trim((string)$record['trend_id']) === '') {
             return self::fail("Row {$rowNum}: 'trend_id' is required.");
         }
-        if (!preg_match('/^\d{6,12}$/', (string)$record['trend_id'])) {
-            return self::fail("Row {$rowNum}: 'trend_id' must be a 6-12 digit numeric ID (e.g. 504312612).");
+        if (!preg_match('/^\d{6,20}$/', (string)$record['trend_id'])) {
+            return self::fail("Row {$rowNum}: 'trend_id' must be a numeric ID (e.g. 504312612).");
         }
 
         // ── number ────────────────────────────────────────────────────────
@@ -83,8 +83,8 @@ class PythonHelp
             return self::fail("Row {$rowNum}: 'number' must be numeric.");
         }
         $num = (int)$record['number'];
-        if ($num < 0 || $num > 99) {
-            return self::fail("Row {$rowNum}: 'number' must be between 0 and 99.");
+        if ($num < 0 || $num > 9) {
+            return self::fail("Row {$rowNum}: 'number' must be between 0 and 9 (WinGo rule).");
         }
 
         // ── color ─────────────────────────────────────────────────────────

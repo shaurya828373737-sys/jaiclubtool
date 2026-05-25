@@ -372,13 +372,23 @@ function analyze(){
 }
 
 // ── BUILD PAYLOAD ─────────────────────────────────────
+// Maps each Big/Small entry to a real WinGo number:
+//   Big   pool → 6,7,8,9,5  (all give MB in real WinGo)
+//   Small pool → 1,2,3,4,0  (all give MS in real WinGo)
+// trend_id uses short 9-digit format that passes Pythonhelp validation
 function buildPayload(){
-  var base = 202605251000000;
+  var base = 504312600;
   var bP=[6,7,8,9,5], sP=[1,2,3,4,0];
   return { trends: trends.map(function(t,i){
-    var iB = t==='Big';
+    var iB  = t==='Big';
     var num = iB ? bP[i%5] : sP[i%5];
-    return {trend_id:String(base+i+1), number:num, color:(NC[num]||'Green').toLowerCase(), size:iB?'MB':'MS'};
+    var col = (NC[num]||'Green').toLowerCase();
+    return {
+      trend_id: String(base + i + 1),
+      number:   num,
+      color:    col,
+      size:     iB ? 'MB' : 'MS'
+    };
   })};
 }
 
