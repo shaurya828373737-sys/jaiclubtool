@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>JAI Club Tool</title>
+    <link rel="stylesheet" href="help.css">
+</head>
+<body class="tool-body">
+
+<!-- ═══════════════════════════════════════════════
+     MAIN IFRAME — shows the jaiclub.app website
+═══════════════════════════════════════════════ -->
+<iframe
+    id="mainFrame"
+    src="https://jaiclub.app/#/login"
+    allow="fullscreen"
+    referrerpolicy="no-referrer"
+></iframe>
+
+<!-- ═══════════════════════════════════════════════
+     FLOATING TOOL PANEL
+═══════════════════════════════════════════════ -->
+<div id="floatTool" class="float-tool">
+
+    <!-- drag handle / title bar -->
+    <div class="tool-titlebar" id="toolDragHandle">
+        <span class="tool-title">⚙ JAI Prediction Tool</span>
+        <button class="tool-toggle-btn" id="toolToggleBtn" title="Minimize/Expand">▼</button>
+    </div>
+
+    <!-- tool body — all panels live here -->
+    <div class="tool-body-inner" id="toolBodyInner">
+
+        <!-- ── STATUS LINE ── -->
+        <div class="tool-status" id="toolStatus">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Connecting to server...</span>
+        </div>
+
+        <!-- ════════════════════════════════
+             PANEL 1 : LOGIN STATE
+        ════════════════════════════════ -->
+        <div class="tool-panel" id="panelLogin">
+            <div class="panel-msg">
+                <div class="msg-icon">🔐</div>
+                <div class="msg-title">Server Connected</div>
+                <div class="msg-sub">Login Now to continue</div>
+            </div>
+            <div class="tool-hint">Please login on the page above, then click <strong>Home</strong> below.</div>
+        </div>
+
+        <!-- ════════════════════════════════
+             PANEL 2 : HOME STATE
+        ════════════════════════════════ -->
+        <div class="tool-panel" id="panelHome" style="display:none">
+            <div class="panel-msg success">
+                <div class="msg-icon">✅</div>
+                <div class="msg-title">Login Done.. Successful</div>
+                <div class="msg-sub">Now start Tool</div>
+            </div>
+            <div class="tool-hint">Click <strong>WinGo</strong> below to open the game.</div>
+        </div>
+
+        <!-- ════════════════════════════════
+             PANEL 3 : WINGO SETUP STATE
+        ════════════════════════════════ -->
+        <div class="tool-panel" id="panelSetup" style="display:none">
+            <div class="setup-lines">
+                <div class="setup-line">
+                    <span class="setup-dot blink"></span>
+                    <span>Setup..Tool</span>
+                </div>
+                <div class="setup-line">
+                    <span class="setup-dot blink2"></span>
+                    <span id="setupServerText">Server Getting..</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════
+             PANEL 4 : TREND ENTRY STATE
+        ════════════════════════════════ -->
+        <div class="tool-panel" id="panelTrend" style="display:none">
+            <div class="trend-instruction">
+                Manually enter Last 10 trends<br>
+                <small>Our system takes time and gives you an accurate result.</small>
+            </div>
+
+            <!-- Big / Small selector -->
+            <div class="bs-row">
+                <button class="bs-btn btn-big"   id="btnBig"   onclick="TrendTool.selectSize('Big')">Big</button>
+                <button class="bs-btn btn-small" id="btnSmall" onclick="TrendTool.selectSize('Small')">Small</button>
+            </div>
+
+            <!-- Trend slot buttons 1–10 -->
+            <div class="trend-slots" id="trendSlots">
+                <!-- built by JS -->
+            </div>
+
+            <!-- Progress indicator -->
+            <div class="trend-progress" id="trendProgress">
+                <span id="trendProgressTxt">0 / 10 entered</span>
+                <div class="tpbar-bg"><div class="tpbar-fill" id="tpBarFill"></div></div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════
+             PANEL 5 : ANALYZING STATE
+        ════════════════════════════════ -->
+        <div class="tool-panel" id="panelAnalyzing" style="display:none">
+            <div class="analyzing-wrap">
+                <div class="tool-spinner"></div>
+                <div class="analyzing-title">All Trends fetched.. Wait</div>
+                <div class="analyzing-steps" id="analyzingSteps">
+                    <div class="astep" id="astep1">⏳ Loading Python engine...</div>
+                    <div class="astep" id="astep2">⏳ Running Calcute.php analysis...</div>
+                    <div class="astep" id="astep3">⏳ Cross-checking CSS patterns...</div>
+                    <div class="astep" id="astep4">⏳ Compiling final prediction...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════
+             PANEL 6 : RESULT STATE
+        ════════════════════════════════ -->
+        <div class="tool-panel" id="panelResult" style="display:none">
+            <div class="result-header-tool">🎯 Prediction Result</div>
+
+            <div class="result-cards-tool">
+                <div class="rcard rcard-highlight">
+                    <div class="rcard-label">NEXT SIZE</div>
+                    <div class="rcard-value" id="toolResSize">—</div>
+                </div>
+                <div class="rcard">
+                    <div class="rcard-label">NUMBER</div>
+                    <div class="rcard-value" id="toolResNumber">—</div>
+                </div>
+                <div class="rcard">
+                    <div class="rcard-label">COLOR</div>
+                    <div class="rcard-value" id="toolResColor">—</div>
+                </div>
+            </div>
+
+            <!-- Confidence -->
+            <div class="tool-conf-wrap">
+                <div class="tool-conf-label">Accuracy: <strong id="toolConfPct">0%</strong></div>
+                <div class="tool-conf-bg">
+                    <div class="tool-conf-fill" id="toolConfBar"></div>
+                </div>
+            </div>
+
+            <!-- Breakdown -->
+            <div class="result-breakdown" id="resultBreakdown"></div>
+
+            <!-- Retry -->
+            <button class="btn-retry" onclick="TrendTool.retry()">🔄 New Prediction</button>
+        </div>
+
+    </div><!-- /tool-body-inner -->
+
+    <!-- ════════════════════════════════
+         BOTTOM NAV BAR (always visible)
+    ════════════════════════════════ -->
+    <div class="tool-nav">
+        <button class="nav-btn" id="navLogin"  onclick="TrendTool.goLogin()">
+            <span class="nav-icon">🔐</span>
+            <span class="nav-label">Login</span>
+        </button>
+        <button class="nav-btn" id="navHome"   onclick="TrendTool.goHome()">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-btn" id="navWingo"  onclick="TrendTool.goWingo()">
+            <span class="nav-icon">🎮</span>
+            <span class="nav-label">WinGo</span>
+        </button>
+    </div>
+
+</div><!-- /floatTool -->
+
+<!-- ═══════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════ -->
+<script src="Pyton-get-result.js"></script>
+
+</body>
+</html>
