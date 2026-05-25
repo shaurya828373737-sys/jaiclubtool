@@ -8,195 +8,76 @@
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════
-     TOP: website iframe (scrollable area)
-══════════════════════════════════════════ -->
-<div id="frameWrap">
-  <iframe id="mainFrame" src="https://jaiclub.app/#/login"
-    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
-    allowfullscreen></iframe>
+<!-- Full screen iframe — the jaiclub website -->
+<iframe id="mainFrame" src="https://jaiclub.app/#/login"
+  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+  allowfullscreen></iframe>
+
+<!-- MINIMIZED STATE: circle logo button -->
+<div id="miniLogo" class="mini-logo" onclick="TOOL.expand()">
+  <span>🎯</span>
 </div>
 
-<!-- ══════════════════════════════════════════
-     BOTTOM: TOOL PANEL  (fixed, always visible)
-     Matches the screenshot exactly:
-     - Header row: ⚙ JAI Prediction Tool  [● Complete—99%]  [▼]
-     - Status bar
-     - Content panels (swapped by state)
-     - Nav bar: Login | Home | WinGo
-══════════════════════════════════════════ -->
-<div id="toolPanel">
+<!-- FLOATING DRAGGABLE CARD -->
+<div id="toolBox" class="tool-box">
 
-  <!-- ── HEADER ── -->
-  <div class="tp-header">
-    <div class="tp-title">
-      <span class="tp-gear">⚙</span>
-      <span>JAI <b>Prediction Tool</b></span>
-    </div>
-    <div class="tp-accuracy" id="accuracyChip">
-      <span class="ac-dot" id="acDot"></span>
-      <span id="acText">Connecting…</span>
-    </div>
-    <button class="tp-arrow" id="tpArrow" onclick="UI.toggle()">▼</button>
+  <!-- Card header (drag handle + minimize) -->
+  <div class="tb-header" id="tbDrag">
+    <span class="tb-dot"></span>
+    <span class="tb-title" id="tbTitle">PREDICTION TOOL</span>
+    <button class="tb-min" id="tbMin" onclick="TOOL.minimize()">—</button>
   </div>
 
-  <!-- ── COLLAPSIBLE BODY ── -->
-  <div class="tp-body" id="tpBody">
+  <!-- Card content area -->
+  <div class="tb-content" id="tbContent">
 
-    <!-- ╔══════════════════╗
-         ║  PANEL: LOGIN    ║
-         ╚══════════════════╝ -->
-    <div class="tp-panel" id="pLogin">
-      <div class="info-box blue-box">
-        <div class="ib-icon">🔐</div>
-        <div class="ib-title">Server Connected.. Login Now</div>
-        <div class="ib-sub">Login on the website above then tap <b>Home</b> ↓</div>
+    <!-- STATE: Login -->
+    <div class="tb-state" id="sLogin">
+      <div class="s-icon">🔐</div>
+      <div class="s-msg"><b>Login Now To Start</b></div>
+      <div class="s-sub">Log in to jaiclub.app then tap 🎮 WinGo</div>
+      <div class="s-btns">
+        <button class="s-btn" onclick="TOOL.nav('login')">🔐 Login</button>
+        <button class="s-btn" onclick="TOOL.nav('home')">🏠 Home</button>
+        <button class="s-btn s-btn-go" onclick="TOOL.nav('wingo')">🎮 WinGo</button>
       </div>
     </div>
 
-    <!-- ╔══════════════════╗
-         ║  PANEL: HOME     ║
-         ╚══════════════════╝ -->
-    <div class="tp-panel" id="pHome" style="display:none">
-      <div class="info-box green-box">
-        <div class="ib-icon">✅</div>
-        <div class="ib-title">Login Done.. Successful</div>
-        <div class="ib-sub">Now start Tool — tap <b>WinGo</b> ↓</div>
+    <!-- STATE: Trend Entry -->
+    <div class="tb-state" id="sTrend" style="display:none">
+      <div class="s-msg-sm">Enter Last 10 Trends (Big/Small)</div>
+      <div class="bs-btns">
+        <button class="bs big" id="bBig" onclick="TOOL.pick('Big')">Big</button>
+        <button class="bs sml" id="bSmall" onclick="TOOL.pick('Small')">Small</button>
       </div>
+      <div class="slots" id="slots"></div>
+      <div class="prog" id="prog">0/10</div>
     </div>
 
-    <!-- ╔══════════════════╗
-         ║  PANEL: SETUP    ║
-         ╚══════════════════╝ -->
-    <div class="tp-panel" id="pSetup" style="display:none">
-      <div class="info-box dark-box">
-        <div class="setup-rows">
-          <div class="setup-row"><span class="sr-dot d1"></span><span class="sr-lbl">Setup.. Tool</span></div>
-          <div class="setup-row"><span class="sr-dot d2"></span><span class="sr-lbl" id="setupMsg">Server Getting..</span></div>
-        </div>
-      </div>
+    <!-- STATE: Analyzing -->
+    <div class="tb-state" id="sAna" style="display:none">
+      <div class="ana-spin"></div>
+      <div class="s-msg"><b>Analyzing...</b></div>
+      <div class="s-sub" id="anaMsg">Processing all algorithms</div>
     </div>
 
-    <!-- ╔═══════════════════════╗
-         ║  PANEL: TREND ENTRY  ║
-         ╚═══════════════════════╝ -->
-    <div class="tp-panel" id="pTrend" style="display:none">
-
-      <!-- Instruction -->
-      <div class="trend-instr">
-        <span class="ti-icon">📋</span>
-        <div>
-          <div class="ti-title">Manually enter Last 10 trends</div>
-          <div class="ti-sub">Our system takes time and gives you an accurate result.</div>
-        </div>
+    <!-- STATE: Result -->
+    <div class="tb-state" id="sResult" style="display:none">
+      <div class="res-row">
+        <div class="res-card res-size" id="rcSize"><div class="rc-lbl">SIZE</div><div class="rc-val" id="rSize">—</div></div>
+        <div class="res-card"><div class="rc-lbl">NUM</div><div class="rc-val" id="rNum">—</div></div>
+        <div class="res-card"><div class="rc-lbl">COLOR</div><div class="rc-val" id="rCol">—</div></div>
       </div>
-
-      <!-- Big / Small buttons -->
-      <div class="bs-wrap">
-        <button class="bs-btn btn-big"   id="btnBig"   onclick="UI.pick('Big')">
-          <span class="bs-main">Big</span><span class="bs-sub">MB</span>
-        </button>
-        <button class="bs-btn btn-small" id="btnSmall" onclick="UI.pick('Small')">
-          <span class="bs-main">Small</span><span class="bs-sub">MS</span>
-        </button>
+      <div class="res-conf">
+        <span>Accuracy:</span>
+        <span class="conf-pct" id="confPct">0%</span>
+        <div class="conf-bar"><div class="conf-fill" id="confFill"></div></div>
       </div>
-
-      <!-- Selection hint -->
-      <div class="sel-hint" id="selHint">← Pick Big or Small first</div>
-
-      <!-- 10 trend slots  5×2 -->
-      <div class="slot-grid" id="slotGrid"></div>
-
-      <!-- Progress bar -->
-      <div class="prog-row">
-        <span class="prog-txt" id="progTxt">0 / 10</span>
-        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
-        <span class="prog-pct" id="progPct">0%</span>
-      </div>
-
+      <button class="s-btn s-btn-go" onclick="TOOL.retry()" style="width:100%;margin-top:8px">🔄 New Prediction</button>
     </div>
 
-    <!-- ╔═══════════════════════╗
-         ║  PANEL: ANALYZING    ║
-         ╚═══════════════════════╝ -->
-    <div class="tp-panel" id="pAna" style="display:none">
-      <div class="ana-wrap">
-        <div class="ana-spinner"></div>
-        <div class="ana-heading">All Trends fetched.. Wait</div>
-        <div class="ana-log" id="anaLog">
-          <div class="al-row" id="al1">⏳ Loading Python engine…</div>
-          <div class="al-row" id="al2">⏳ Running Calcute.php analysis…</div>
-          <div class="al-row" id="al3">⏳ Cross-checking 7 algorithms…</div>
-          <div class="al-row" id="al4">⏳ Compiling final prediction…</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ╔═══════════════════════╗
-         ║  PANEL: RESULT       ║
-         ╚═══════════════════════╝ -->
-    <div class="tp-panel" id="pResult" style="display:none">
-
-      <!-- Prediction Result header -->
-      <div class="res-hdr">
-        <span class="res-hdr-icon">🎯</span>
-        <span class="res-hdr-txt">Prediction Result</span>
-      </div>
-
-      <!-- 3 cards: NEXT SIZE / NUMBER / COLOR -->
-      <div class="res-cards">
-        <div class="res-card card-size" id="cardSize">
-          <div class="rcard-lbl">NEXT SIZE</div>
-          <div class="rcard-val" id="rSize">—</div>
-        </div>
-        <div class="res-card card-num">
-          <div class="rcard-lbl">NUMBER</div>
-          <div class="rcard-val" id="rNum">—</div>
-        </div>
-        <div class="res-card card-col">
-          <div class="rcard-lbl">COLOR</div>
-          <div class="rcard-val" id="rCol">—</div>
-        </div>
-      </div>
-
-      <!-- Accuracy bar -->
-      <div class="acc-section">
-        <div class="acc-label-row">
-          <span class="acc-word">Accuracy</span>
-          <span class="acc-pct" id="accPct">0%</span>
-        </div>
-        <div class="acc-bar"><div class="acc-fill" id="accFill"></div></div>
-      </div>
-
-      <!-- Signal breakdown rows -->
-      <div class="sigs" id="sigRows"></div>
-
-      <!-- New Prediction button -->
-      <button class="new-pred-btn" onclick="UI.retry()">
-        <span>🔄</span> New Prediction
-      </button>
-
-    </div>
-
-  </div><!-- /tp-body -->
-
-  <!-- ── NAV BAR ── -->
-  <div class="tp-nav">
-    <button class="tn-btn active" id="nb-login" onclick="UI.goLogin()">
-      <span class="tn-ico">🔐</span>
-      <span class="tn-lbl">Login</span>
-    </button>
-    <button class="tn-btn" id="nb-home" onclick="UI.goHome()">
-      <span class="tn-ico">🏠</span>
-      <span class="tn-lbl">Home</span>
-    </button>
-    <button class="tn-btn" id="nb-wingo" onclick="UI.goWingo()">
-      <span class="tn-ico">🎮</span>
-      <span class="tn-lbl">WinGo</span>
-    </button>
   </div>
-
-</div><!-- /toolPanel -->
+</div>
 
 <script src="Pyton-get-result.js"></script>
 </body>
