@@ -8,155 +8,196 @@
 </head>
 <body>
 
-<!-- iframe: fills top area, pointer-events none so tool card always clickable -->
-<iframe id="mainFrame" src="https://jaiclub.app/#/login"
-        sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-        allowfullscreen></iframe>
+<!-- ══════════════════════════════════════════
+     TOP: website iframe (scrollable area)
+══════════════════════════════════════════ -->
+<div id="frameWrap">
+  <iframe id="mainFrame" src="https://jaiclub.app/#/login"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"
+    allowfullscreen></iframe>
+</div>
 
-<!-- FLOATING TOOL CARD — always on top, fixed bottom -->
-<div id="toolCard" class="tool-card">
+<!-- ══════════════════════════════════════════
+     BOTTOM: TOOL PANEL  (fixed, always visible)
+     Matches the screenshot exactly:
+     - Header row: ⚙ JAI Prediction Tool  [● Complete—99%]  [▼]
+     - Status bar
+     - Content panels (swapped by state)
+     - Nav bar: Login | Home | WinGo
+══════════════════════════════════════════ -->
+<div id="toolPanel">
 
-  <!-- HEADER / DRAG PILL -->
-  <div class="tc-header" id="tcHeader">
-    <div class="tc-pill"></div>
-    <div class="tc-head-row">
-      <div class="tc-logo">
-        <span class="tc-logo-icon">⚙️</span>
-        <span class="tc-logo-text">JAI <span class="tc-logo-accent">Prediction Tool</span></span>
-      </div>
-      <div class="tc-status-chip">
-        <span class="chip-dot" id="chipDot"></span>
-        <span id="chipText">Connecting...</span>
-      </div>
-      <button class="tc-toggle" id="tcToggle" title="Collapse/Expand">▼</button>
+  <!-- ── HEADER ── -->
+  <div class="tp-header">
+    <div class="tp-title">
+      <span class="tp-gear">⚙</span>
+      <span>JAI <b>Prediction Tool</b></span>
     </div>
+    <div class="tp-accuracy" id="accuracyChip">
+      <span class="ac-dot" id="acDot"></span>
+      <span id="acText">Connecting…</span>
+    </div>
+    <button class="tp-arrow" id="tpArrow" onclick="UI.toggle()">▼</button>
   </div>
 
-  <!-- SCROLLABLE BODY -->
-  <div class="tc-body" id="tcBody">
+  <!-- ── COLLAPSIBLE BODY ── -->
+  <div class="tp-body" id="tpBody">
 
-    <!-- P1: LOGIN -->
-    <div class="tc-panel" id="panelLogin">
-      <div class="state-card login-card">
-        <div class="state-icon">🔐</div>
-        <div class="state-title">Server Connected.. Login Now</div>
-        <div class="state-sub">Please login on the site above</div>
-        <div class="state-hint">After login, tap <b>Home</b> button below ↓</div>
+    <!-- ╔══════════════════╗
+         ║  PANEL: LOGIN    ║
+         ╚══════════════════╝ -->
+    <div class="tp-panel" id="pLogin">
+      <div class="info-box blue-box">
+        <div class="ib-icon">🔐</div>
+        <div class="ib-title">Server Connected.. Login Now</div>
+        <div class="ib-sub">Login on the website above then tap <b>Home</b> ↓</div>
       </div>
     </div>
 
-    <!-- P2: HOME -->
-    <div class="tc-panel" id="panelHome" style="display:none">
-      <div class="state-card success-card">
-        <div class="state-icon">✅</div>
-        <div class="state-title">Login Done.. Successful</div>
-        <div class="state-sub">Now start Tool</div>
-        <div class="state-hint">Tap <b>WinGo</b> below to open the game ↓</div>
+    <!-- ╔══════════════════╗
+         ║  PANEL: HOME     ║
+         ╚══════════════════╝ -->
+    <div class="tp-panel" id="pHome" style="display:none">
+      <div class="info-box green-box">
+        <div class="ib-icon">✅</div>
+        <div class="ib-title">Login Done.. Successful</div>
+        <div class="ib-sub">Now start Tool — tap <b>WinGo</b> ↓</div>
       </div>
     </div>
 
-    <!-- P3: WINGO SETUP -->
-    <div class="tc-panel" id="panelSetup" style="display:none">
-      <div class="setup-card">
-        <div class="setup-row">
-          <span class="setup-dot d1"></span>
-          <span class="setup-lbl">Setup.. Tool</span>
+    <!-- ╔══════════════════╗
+         ║  PANEL: SETUP    ║
+         ╚══════════════════╝ -->
+    <div class="tp-panel" id="pSetup" style="display:none">
+      <div class="info-box dark-box">
+        <div class="setup-rows">
+          <div class="setup-row"><span class="sr-dot d1"></span><span class="sr-lbl">Setup.. Tool</span></div>
+          <div class="setup-row"><span class="sr-dot d2"></span><span class="sr-lbl" id="setupMsg">Server Getting..</span></div>
         </div>
-        <div class="setup-row">
-          <span class="setup-dot d2"></span>
-          <span class="setup-lbl" id="setupTxt">Server Getting..</span>
-        </div>
       </div>
     </div>
 
-    <!-- P4: TREND ENTRY -->
-    <div class="tc-panel" id="panelTrend" style="display:none">
-      <div class="trend-header">
-        <p class="trend-title">Manually enter Last 10 trends</p>
-        <p class="trend-sub">Our system takes time and gives you an accurate result.</p>
+    <!-- ╔═══════════════════════╗
+         ║  PANEL: TREND ENTRY  ║
+         ╚═══════════════════════╝ -->
+    <div class="tp-panel" id="pTrend" style="display:none">
+
+      <!-- Instruction -->
+      <div class="trend-instr">
+        <span class="ti-icon">📋</span>
+        <div>
+          <div class="ti-title">Manually enter Last 10 trends</div>
+          <div class="ti-sub">Our system takes time and gives you an accurate result.</div>
+        </div>
       </div>
-      <div class="bs-row">
-        <button class="bs-btn big-btn"   id="btnBig"   onclick="T.pick('Big')">
-          <span class="bs-label">Big</span><span class="bs-tag">MB</span>
+
+      <!-- Big / Small buttons -->
+      <div class="bs-wrap">
+        <button class="bs-btn btn-big"   id="btnBig"   onclick="UI.pick('Big')">
+          <span class="bs-main">Big</span><span class="bs-sub">MB</span>
         </button>
-        <button class="bs-btn small-btn" id="btnSmall" onclick="T.pick('Small')">
-          <span class="bs-label">Small</span><span class="bs-tag">MS</span>
+        <button class="bs-btn btn-small" id="btnSmall" onclick="UI.pick('Small')">
+          <span class="bs-main">Small</span><span class="bs-sub">MS</span>
         </button>
       </div>
-      <div class="sel-badge" id="selBadge">← Select Big or Small first</div>
-      <div class="slots-grid" id="slotsGrid"></div>
-      <div class="prog-wrap">
-        <div class="prog-top">
-          <span class="prog-lbl" id="progLbl">0 / 10 entered</span>
-          <span class="prog-pct" id="progPct">0%</span>
-        </div>
-        <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
+
+      <!-- Selection hint -->
+      <div class="sel-hint" id="selHint">← Pick Big or Small first</div>
+
+      <!-- 10 trend slots  5×2 -->
+      <div class="slot-grid" id="slotGrid"></div>
+
+      <!-- Progress bar -->
+      <div class="prog-row">
+        <span class="prog-txt" id="progTxt">0 / 10</span>
+        <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+        <span class="prog-pct" id="progPct">0%</span>
       </div>
+
     </div>
 
-    <!-- P5: ANALYZING -->
-    <div class="tc-panel" id="panelAnalyzing" style="display:none">
-      <div class="ana-card">
+    <!-- ╔═══════════════════════╗
+         ║  PANEL: ANALYZING    ║
+         ╚═══════════════════════╝ -->
+    <div class="tp-panel" id="pAna" style="display:none">
+      <div class="ana-wrap">
         <div class="ana-spinner"></div>
-        <div class="ana-title">All Trends fetched.. Wait</div>
-        <div class="ana-steps">
-          <div class="ana-step" id="as1">⏳ Loading Python engine...</div>
-          <div class="ana-step" id="as2">⏳ Running Calcute.php analysis...</div>
-          <div class="ana-step" id="as3">⏳ Cross-checking patterns...</div>
-          <div class="ana-step" id="as4">⏳ Compiling final prediction...</div>
+        <div class="ana-heading">All Trends fetched.. Wait</div>
+        <div class="ana-log" id="anaLog">
+          <div class="al-row" id="al1">⏳ Loading Python engine…</div>
+          <div class="al-row" id="al2">⏳ Running Calcute.php analysis…</div>
+          <div class="al-row" id="al3">⏳ Cross-checking 7 algorithms…</div>
+          <div class="al-row" id="al4">⏳ Compiling final prediction…</div>
         </div>
       </div>
     </div>
 
-    <!-- P6: RESULT -->
-    <div class="tc-panel" id="panelResult" style="display:none">
-      <div class="res-badge">🎯 Prediction Result</div>
+    <!-- ╔═══════════════════════╗
+         ║  PANEL: RESULT       ║
+         ╚═══════════════════════╝ -->
+    <div class="tp-panel" id="pResult" style="display:none">
+
+      <!-- Prediction Result header -->
+      <div class="res-hdr">
+        <span class="res-hdr-icon">🎯</span>
+        <span class="res-hdr-txt">Prediction Result</span>
+      </div>
+
+      <!-- 3 cards: NEXT SIZE / NUMBER / COLOR -->
       <div class="res-cards">
-        <div class="res-card res-main" id="rcSize">
-          <div class="rc-lbl">NEXT SIZE</div>
-          <div class="rc-val" id="rSize">—</div>
+        <div class="res-card card-size" id="cardSize">
+          <div class="rcard-lbl">NEXT SIZE</div>
+          <div class="rcard-val" id="rSize">—</div>
         </div>
-        <div class="res-card">
-          <div class="rc-lbl">NUMBER</div>
-          <div class="rc-val" id="rNum">—</div>
+        <div class="res-card card-num">
+          <div class="rcard-lbl">NUMBER</div>
+          <div class="rcard-val" id="rNum">—</div>
         </div>
-        <div class="res-card">
-          <div class="rc-lbl">COLOR</div>
-          <div class="rc-val" id="rCol">—</div>
+        <div class="res-card card-col">
+          <div class="rcard-lbl">COLOR</div>
+          <div class="rcard-val" id="rCol">—</div>
         </div>
       </div>
-      <div class="acc-wrap">
-        <div class="acc-row">
-          <span class="acc-lbl">Accuracy</span>
+
+      <!-- Accuracy bar -->
+      <div class="acc-section">
+        <div class="acc-label-row">
+          <span class="acc-word">Accuracy</span>
           <span class="acc-pct" id="accPct">0%</span>
         </div>
-        <div class="acc-track"><div class="acc-fill" id="accFill"></div></div>
+        <div class="acc-bar"><div class="acc-fill" id="accFill"></div></div>
       </div>
-      <div class="sig-list" id="sigList"></div>
-      <button class="retry-btn" onclick="T.retry()">🔄 &nbsp;New Prediction</button>
+
+      <!-- Signal breakdown rows -->
+      <div class="sigs" id="sigRows"></div>
+
+      <!-- New Prediction button -->
+      <button class="new-pred-btn" onclick="UI.retry()">
+        <span>🔄</span> New Prediction
+      </button>
+
     </div>
 
-  </div><!-- /tc-body -->
+  </div><!-- /tp-body -->
 
-  <!-- BOTTOM NAV -->
-  <div class="tc-nav">
-    <button class="nav-btn active" id="nb-login" onclick="T.goLogin()">
-      <span class="nb-ico">🔐</span><span class="nb-lbl">Login</span>
+  <!-- ── NAV BAR ── -->
+  <div class="tp-nav">
+    <button class="tn-btn active" id="nb-login" onclick="UI.goLogin()">
+      <span class="tn-ico">🔐</span>
+      <span class="tn-lbl">Login</span>
     </button>
-    <button class="nav-btn" id="nb-home" onclick="T.goHome()">
-      <span class="nb-ico">🏠</span><span class="nb-lbl">Home</span>
+    <button class="tn-btn" id="nb-home" onclick="UI.goHome()">
+      <span class="tn-ico">🏠</span>
+      <span class="tn-lbl">Home</span>
     </button>
-    <button class="nav-btn" id="nb-wingo" onclick="T.goWingo()">
-      <span class="nb-ico">🎮</span><span class="nb-lbl">WinGo</span>
+    <button class="tn-btn" id="nb-wingo" onclick="UI.goWingo()">
+      <span class="tn-ico">🎮</span>
+      <span class="tn-lbl">WinGo</span>
     </button>
   </div>
 
-</div><!-- /toolCard -->
+</div><!-- /toolPanel -->
 
 <script src="Pyton-get-result.js"></script>
-
-<!-- ANTIMASTER: force-show floating card, always last so it overrides everything -->
-<?php include 'antimaster.php'; ?>
-
 </body>
 </html>
